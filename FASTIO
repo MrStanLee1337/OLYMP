@@ -16,9 +16,9 @@ using namespace std;
 #define inf LLONG_MAX
 #define pi acos(-1)
 
-int counter = 0;
+int debugcounter = 0;
 #define debug(x) \
-cout << counter++ << " : " << #x << " = " << x << endl; 
+cout << debugcounter++ << " : " << #x << " = " << x << endl; 
 
 typedef long long ll;
 
@@ -30,8 +30,6 @@ bool solve(){
 int main(){
   ios_base::sync_with_stdio(0);
   cin.tie(NULL);
-  
-  solve();
   
   return solve();
 }
