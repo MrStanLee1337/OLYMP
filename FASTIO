@@ -16,7 +16,7 @@ using namespace std;
 #define pi acos(-1)
 typedef long long ll;
 
-void solve(){
+bool solve(){
     
 }
 
@@ -26,5 +26,5 @@ int main(){
   
   solve();
   
-  return 0;
+  return solve();
 }
