@@ -19,7 +19,7 @@ using namespace std;
 
 int debugcounter = 0;
 #define debug(x) \
-cout << debugcounter++ << " : " << #x << " = " << x << endl; 
+cout << debugcounter++ << " : " << #x << " = " << x << '\n'; 
 
 typedef long long ll;
 
