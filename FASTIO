@@ -1,0 +1,30 @@
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <numeric>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <deque>
+#include <queue>
+#include <stack>
+#include <climits>
+#include <cmath>
+using namespace std;
+#define inf LLONG_MAX
+#define pi acos(-1)
+typedef long long ll;
+
+void solve(){
+    
+}
+
+int main(){
+  ios_base::sync_with_stdio(0);
+  cin.tie(NULL);
+  
+  solve();
+  
+  return 0;
+}
