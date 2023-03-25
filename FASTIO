@@ -12,9 +12,14 @@
 #include <climits>
 #include <cmath>
 using namespace std;
+
 #define inf LLONG_MAX
 #define pi acos(-1)
-#define debug(x) cout << #x << " = " << x << endl; 
+
+int counter = 0;
+#define debug(x) \
+cout << counter++ << " : " << #x << " = " << x << endl; 
+
 typedef long long ll;
 
 bool solve(){
