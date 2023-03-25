@@ -18,6 +18,7 @@ typedef long long ll;
 
 bool solve(){
     
+    return 0;
 }
 
 int main(){
