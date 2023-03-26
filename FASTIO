@@ -19,7 +19,8 @@ using namespace std;
 
 int debugcounter = 0;
 #define debug(x) \
-cout << debugcounter++ << " : " << #x << " = " << x << '\n'; 
+cout << __FUNCTION__ << " : " << __LINE__ << " | "; \
+cout << "Counter: " << debugcounter++ << " | (" << #x << " = " << x << ")\n"; 
 
 typedef long long ll;
 
