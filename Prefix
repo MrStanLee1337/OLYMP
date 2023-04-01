@@ -1,0 +1,48 @@
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+using namespace std;
+
+
+vector<int> prefix_function(const string& s) {
+    vector<int> kmp(s.length(), 0);
+
+    for (int i = 1; i < s.length(); i++) {
+        int pref = kmp[i - 1];  //текущая длина префикса, который мы хотим продолжить
+                            //гарантируется, что s[0..j-1] = s[i-j..i-1]
+                            
+        while (pref > 0 && s[i] != s[pref]) {     //пока мы не можем продолжить текущий префикс
+            pref = kmp[pref - 1];  //уменьшаем его длину до следующей возможной
+        }
+        
+        //Теперь j - максимальная длина префикса, который мы можем продолжить,
+        //или 0, если такового не существует.
+        
+        if (s[i] == s[pref]) {
+            kmp[i] = pref + 1;
+        } else {    //такое может произойти только при j = 0
+            kmp[i] = pref;
+        }
+        
+    }
+
+    return kmp;
+}
+
+int main(){
+    string s, t;
+    getline(cin,s);
+    getline(cin,t);
+    
+
+    vector<int> kmp = prefix_function(t + '#' + s);
+
+    int t_len = t.length();
+
+    for (int i = 0; i < s.length(); i++) {
+        if (kmp[t_len + 1 + i] == t_len) { // с учётом объединённых строк t + '#' + s
+            cout << "s[" << i - t_len + 1 << ".." << i << "] = t" << endl;
+        }
+    }
+}
