@@ -1,0 +1,169 @@
+/******************************************************************************
+ITREAP ulgtu
+*******************************************************************************/
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <random>
+#define bublic public
+using namespace std;
+
+template <typename Value>
+class Treap{
+    static minstd_rand generator;
+    
+    struct Node {
+        int priority;
+        Value value, size = 1;
+        Node *l = nullptr, *r = nullptr;
+        Node(int value) : priority(generator()), value(value) {}
+    } *root = nullptr;
+    
+    static int getSize(Node *n){
+        return n ? n->size : 0;
+    }
+    
+    static void update(Node* n){
+        if (n) {
+            n->size = getSize(n->l) + 1 + getSize(n->r);
+        }
+    }
+    
+    static Node *merge(Node *a, Node *b){
+        if(!a || !b) return a ? a : b;
+        if(a->priority > b->priority) {
+            a->r = merge(a->r, b);
+            update(a);
+            return a;
+        } else {
+            b->l = merge(a,b->l);
+            update(b);
+            return b;
+        }
+        
+    }
+    
+    static void split(Node *n, int k, Node *&a, Node *&b){
+        if(!n) {
+            a = b = nullptr;
+            return;
+        }
+        if(getSize(n->l) < k){
+            split(n->r, k - getSize(n->l) - 1, n->r , b);
+            a = n;
+        } else {
+            split(n->l, k, a, n->l);
+            b = n;
+        }
+        update(a);
+        update(b);
+    }
+    
+    Node* find(int index) {
+        /*if (rt == nullptr) return nullptr; // дерево пустое
+        
+        if (index < rt->l->size) {
+            return find(rt->l, index); // элемент находится в левом поддереве
+        } else if (index == rt->size) {
+            return rt; // элемент найден
+        } else {
+            return find(rt->r, index - rt->l->size - 1); // элемент находится в правом поддереве
+        }
+        */
+        Node *now = root;
+        while(1){
+            int ls = now->l->size;//leftsize
+            if(ls > index){
+                now = now->l;
+            } else if(ls == index){
+                break;
+            } else {
+                now = now->r;
+                index = index - ls - 1; 
+            }
+        }
+        return now->l;
+    }
+
+bublic:
+    
+    /*Value operator[](int index) {
+        Node *less, *equal, *greater;
+        split(root, index, less, greater);
+        split(greater, 1, equal, greater);
+        int result = equal->value;
+        root = merge(merge(less,equal), greater);
+        return result;
+    }*/
+    
+    Value operator[](int index){
+        Node *now = find(index);
+        return now->value;
+    }
+    
+    void pushBack (int value){ root = merge(root, new Node(value)); }
+    void pushFront(int value){ root = merge(new Node(value), root); }
+    void insert(int index, int value){
+        Node *less, *greater;
+        split(root, index, less,greater);
+        root = merge(merge(less, new Node(value)), greater);
+    }
+    
+    void erase(int index){
+        Node *less, *equal, *greater;
+        split(root, index, less, greater);
+        split(greater, 1, equal, greater);
+        root = merge(less,greater);
+    }
+    
+    void erase(int l, int r){
+        Node *less, *greater, *equal;
+        split(root, l, less, greater);
+        split(greater, r - l + 1, equal, greater);
+        root = merge(less,greater);
+    }
+    
+    int size(){
+        return getSize(root);
+    }
+};
+
+template <typename Value>
+minstd_rand Treap<Value>::generator;
+
+int main(){
+    Treap<int> t;
+    t.pushBack(228);
+    t.pushBack(1337);
+    t.pushBack(420);
+    cout << "Пушбек: ";
+    for(int i = 0; i < t.size(); i++) cout << t[i] << ' ';
+    cout << '\n';
+    cout << "Пушфронт: ";
+    t.pushFront(007);
+    t.pushFront(69);
+    for(int i = 0; i < t.size(); i++) cout << t[i] << ' ';
+    cout << '\n';
+    cout << "уразе 3: ";
+    t.erase(3);
+    for(int i = 0; i < t.size(); i++) cout << t[i] << ' ';
+    cout << '\n';
+    cout << "ераз 2-3: ";
+    t.erase(2,3);
+    for(int i = 0; i < t.size(); i++) cout << t[i] << ' ';
+    cout << '\n';
+    
+    return 0;
+}
+/*ulgtu*/
+
+
+
+
+
+
+
+
+
+
+
