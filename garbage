@@ -87,19 +87,28 @@ class Treap{
 
 bublic:
     
-    /*Value operator[](int index) {
+    Value operator[](int index) const {
         Node *less, *equal, *greater;
         split(root, index, less, greater);
         split(greater, 1, equal, greater);
         int result = equal->value;
+        const_cast<Node*&>(root) = merge(merge(less,equal), greater);
+        return result;
+    }
+    
+    Value& operator[](int index) {
+        Node *less, *equal, *greater;
+        split(root, index, less, greater);
+        split(greater, 1, equal, greater);
+        int &result = equal->value;
         root = merge(merge(less,equal), greater);
         return result;
-    }*/
+    }
     
-    Value operator[](int index){
+    /*Value operator[](int index){
         Node *now = find(index);
         return now->value;
-    }
+    }*/
     
     void pushBack (int value){ root = merge(root, new Node(value)); }
     void pushFront(int value){ root = merge(new Node(value), root); }
@@ -152,11 +161,12 @@ int main(){
     t.erase(2,3);
     for(int i = 0; i < t.size(); i++) cout << t[i] << ' ';
     cout << '\n';
-    
+    cout << t[0];
+    t[0] = 17;
+    cout << '\n' << t[0];
     return 0;
 }
 /*ulgtu*/
-
 
 
 
