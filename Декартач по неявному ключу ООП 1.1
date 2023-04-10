@@ -1,0 +1,121 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <random>
+#define bublic public
+using namespace std;
+
+template <typename Value>
+class ITreap{
+    struct node {
+        int priority, size;
+        Value value;
+        node(Value value): value(value), priority(rand()), size(1){}
+        node *left = nullptr, *right = nullptr;
+        void update () { size = 1 + (left ? left->size : 0) + (right ? right->size : 0); }
+    } *root = nullptr;
+    
+    static int getSize(node *a){
+        return a ? a->size : 0;
+    }
+    
+    node *merge(node *a, node *b){
+        if(!a) return b;
+        if(!b) return a;
+        if(a->priority > b->priority){
+            a->right = merge(a->right, b);
+            a->update();
+            return a;
+        } else {
+            b->left = merge(a, b->left);
+            b->update();
+            return b;
+        }
+    }
+    pair<node*, node*> split(node* p, int count){
+        if(!p) return {nullptr, nullptr};
+        pair<node*, node*> res;
+            int ls = getSize(p->left);
+            if (ls >= count) {
+                auto tmp = split(p->left, count);
+                p->left = tmp.second;
+                p->update();
+                res.first = tmp.first;
+                res.second = p;
+            } else {
+                auto tmp = split(p->right, count - ls - 1);
+                p->right = tmp.first;
+                p->update();
+                res.first = p;
+                res.second = tmp.second;
+            }
+        return res;
+    }
+    
+bublic:
+    int size(){ return root ? root->size : 0;}
+    void insert(int index, int value){
+        auto [less, greater] = split(root, index);
+        root = merge(merge(less, new node(value)), greater);
+    }
+    void push_back(int value){
+        root = merge(root, new node(value));
+    }
+    void push_front(int value){
+        root = merge(new node(value), root);
+    }
+    void erase(int index){
+        node *less, *greater, *equal;
+        make_pair(less, greater)  = split(root, index);
+        make_pair(equal, greater) = split(greater, 1);
+        root = merge(less, greater);
+    }
+    Value operator[](int index) const {
+        if (index < 0 || index >= getSize(root)) {
+            // Если индекс выходит за пределы дерева, возвращаем значение по умолчанию
+            cout << "\nВыход за ограничения\n";
+            return 0;
+        }
+        node* p = root;
+        // Идём по дереву в левое или правое поддерево, пока не дойдём до нужного индекса
+        while (true) {
+            int left_size = getSize(p->left); // размер левого поддерева корня p
+            if (index == left_size) {
+                // Если индекс равен размеру левого поддерева, то возвращаем значение корня
+                return p->value;
+            } else if (index < left_size) {
+                // Если индекс меньше размера левого поддерева, идём в левое поддерево
+                p = p->left;
+            } else {
+                // Если индекс больше размера левого поддерева, идём в правое поддерево
+                index -= (left_size + 1); // вычитаем размер левого поддерева и корня
+                p = p->right;
+            }
+        }
+    }
+};
+
+
+
+int main(){
+    ITreap <int> it;
+    it.push_front(19);
+    it.push_front(17);
+    it.push_front(11);
+    it.push_front(5);
+    it.push_front(7);
+    it.push_front(1);
+    it.push_front(9);
+    cout << it.size() << '\n';
+    for(int i = 0; i < it.size(); i++){
+        cout << it[i] << ' ';
+    } cout << '\n';
+    it.insert(3, -2);
+    
+    for(int i = 0; i < it.size(); i++){
+        cout << it[i] << ' ';
+    } cout << '\n';
+    
+    //it.print();
+    return 0;
+}
