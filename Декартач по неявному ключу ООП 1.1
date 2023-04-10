@@ -100,6 +100,26 @@ bublic:
             }
         }
     }
+    
+    Value& operator[](int index) {
+        if (index < 0 || index >= getSize(root)) {
+            cout << "\nВыход за ограничения\n";
+        }
+        node* p = root;
+        while (true) {
+            int left_size = getSize(p->left); 
+            if (index == left_size) {
+                int &result = p->value;
+                return result;
+            } else if (index < left_size) {
+                p = p->left;
+            } else {
+                index -= (left_size + 1); 
+                p = p->right;
+            }
+        }
+    }
+    
 };
 
 
@@ -116,6 +136,7 @@ int main(){
     cout << it.size() << '\n';
     for(int i = 0; i < it.size(); i++){
         cout << it[i] << ' ';
+        it[i] = -it[i];
     } cout << '\n';
     
     for(int i = 0; i < it.size(); i++){
