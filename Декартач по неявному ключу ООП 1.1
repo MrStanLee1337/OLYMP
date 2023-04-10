@@ -11,9 +11,18 @@ class ITreap{
         int priority, size;
         Value value;
         node(Value value): value(value), priority(rand()), size(1){}
-        node *left = nullptr, *right = nullptr;
+        node *left = nullptr, *right = nullptr, *parent = nullptr;
         void update () { size = 1 + (left ? left->size : 0) + (right ? right->size : 0); }
     } *root = nullptr;
+    
+    static void update(node *a){
+        a->update();
+        setParent(a->left, a);
+        setParent(a->right, a);
+    }
+    static void setParent(node* me, node* mom){
+        if(me) me->parent = mom;
+    }
     
     static int getSize(node *a){
         return a ? a->size : 0;
@@ -24,11 +33,11 @@ class ITreap{
         if(!b) return a;
         if(a->priority > b->priority){
             a->right = merge(a->right, b);
-            a->update();
+            update(a);
             return a;
         } else {
             b->left = merge(a, b->left);
-            b->update();
+            update(b);
             return b;
         }
     }
@@ -39,16 +48,18 @@ class ITreap{
             if (ls >= count) {
                 auto tmp = split(p->left, count);
                 p->left = tmp.second;
-                p->update();
+                update(p);
                 res.first = tmp.first;
                 res.second = p;
             } else {
                 auto tmp = split(p->right, count - ls - 1);
                 p->right = tmp.first;
-                p->update();
+                update(p);
                 res.first = p;
                 res.second = tmp.second;
             }
+        setParent(res.first, nullptr);
+        setParent(res.second, nullptr);
         return res;
     }
     
@@ -69,26 +80,22 @@ bublic:
         make_pair(less, greater)  = split(root, index);
         make_pair(equal, greater) = split(greater, 1);
         root = merge(less, greater);
+        
     }
     Value operator[](int index) const {
         if (index < 0 || index >= getSize(root)) {
-            // Если индекс выходит за пределы дерева, возвращаем значение по умолчанию
             cout << "\nВыход за ограничения\n";
             return 0;
         }
         node* p = root;
-        // Идём по дереву в левое или правое поддерево, пока не дойдём до нужного индекса
         while (true) {
-            int left_size = getSize(p->left); // размер левого поддерева корня p
+            int left_size = getSize(p->left); 
             if (index == left_size) {
-                // Если индекс равен размеру левого поддерева, то возвращаем значение корня
                 return p->value;
             } else if (index < left_size) {
-                // Если индекс меньше размера левого поддерева, идём в левое поддерево
                 p = p->left;
             } else {
-                // Если индекс больше размера левого поддерева, идём в правое поддерево
-                index -= (left_size + 1); // вычитаем размер левого поддерева и корня
+                index -= (left_size + 1); 
                 p = p->right;
             }
         }
@@ -110,7 +117,6 @@ int main(){
     for(int i = 0; i < it.size(); i++){
         cout << it[i] << ' ';
     } cout << '\n';
-    it.insert(3, -2);
     
     for(int i = 0; i < it.size(); i++){
         cout << it[i] << ' ';
