@@ -1,24 +1,39 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <random>
+using namespace std;
+
 template <typename Value>
 class ITreap{
+    
     struct node {
         int priority, size;
         Value value;
         node(Value value): value(value), priority(rand()), size(1){}
-        node *left = nullptr, *right = nullptr, *parent = nullptr;
+        node *left = nullptr, *right = nullptr;
         void update () { size = 1 + (left ? left->size : 0) + (right ? right->size : 0); }
     } *root = nullptr;
     
-    static void update(node *a){
-        a->update();
-        setParent(a->left, a);
-        setParent(a->right, a);
-    }
-    static void setParent(node* me, node* mom){
-        if(me) me->parent = mom;
+    int getSize(node *a){
+        return a ? a->size : 0;
     }
     
-    static int getSize(node *a){
-        return a ? a->size : 0;
+    pair<node*, node*> split(node* p, int count){
+        if(!p) return {nullptr, nullptr};
+        
+        int ls = getSize(p->left);
+        if (ls >= count) {
+            auto [first, second] = split(p->left, count);
+            p->left = second;
+            p->update();
+            return {first, p};
+        } else {
+            auto [first, second] = split(p->right, count - ls - 1);
+            p->right = first;
+            p->update();
+            return {p, second};
+        }
     }
     
     node *merge(node *a, node *b){
@@ -26,80 +41,61 @@ class ITreap{
         if(!b) return a;
         if(a->priority > b->priority){
             a->right = merge(a->right, b);
-            update(a);
+            a->update();
             return a;
         } else {
             b->left = merge(a, b->left);
-            update(b);
+            b->update();
             return b;
         }
     }
-    pair<node*, node*> split(node* p, int count){
-        if(!p) return {nullptr, nullptr};
-        pair<node*, node*> res;
-            int ls = getSize(p->left);
-            if (ls >= count) {
-                auto tmp = split(p->left, count);
-                p->left = tmp.second;
-                update(p);
-                res.first = tmp.first;
-                res.second = p;
-            } else {
-                auto tmp = split(p->right, count - ls - 1);
-                p->right = tmp.first;
-                update(p);
-                res.first = p;
-                res.second = tmp.second;
-            }
-        setParent(res.first, nullptr);
-        setParent(res.second, nullptr);
-        return res;
-    }
+    
     node* find(int index){
         if (index < 0 || index >= getSize(root)) {
             cout << "\nВыход за ограничения\n";
-            return 0;
+            return nullptr;
         }
         node* p = root;
         while (true) {
-            int left_size = getSize(p->left); 
-            if (index == left_size) {
+            int ls = getSize(p->left); 
+            if (index == ls) {
                 return p;
-            } else if (index < left_size) {
+            } else if (index < ls) {
                 p = p->left;
             } else {
-                index -= (left_size + 1); 
+                index -= (ls + 1); 
                 p = p->right;
             }
         }
     }
     
     void foreach(std::function<void (Value&)> f, node *p) {
-        if (p == nullptr) return;
-        foreach(f, p->left);
+        if (!p) return;
+        if(p->left) foreach(f, p->left);
         f(p->value);
-        foreach(f, p->right);
+        if(p->right) foreach(f, p->right);
     }
-
+    
+    void free(node *t) {
+        if(!t) return;
+        free(t->left);
+        free(t->right);
+        delete t;
+    }
+    
 public:
+
+    ITreap(){}
+    
+    ~ITreap() { free(root); }
+    
     int size(){ return root ? root->size : 0;}
+    
     void insert(int index, int value){
         auto [less, greater] = split(root, index);
         root = merge(merge(less, new node(value)), greater);
     }
-    void push_back(int value){
-        root = merge(root, new node(value));
-    }
-    void push_front(int value){
-        root = merge(new node(value), root);
-    }
-    void erase(int index){
-        node *less, *greater, *equal;
-        make_pair(less, greater)  = split(root, index);
-        make_pair(equal, greater) = split(greater, 1);
-        root = merge(less, greater);
-        
-    }
+    
     Value operator[](int index) const {
         return find(index)->value;
     }
@@ -108,8 +104,63 @@ public:
         int &result = find(index)->value;
         return result;
     }
+    
+    void push_back(int value){
+        root = merge(root, new node(value));
+    }
+    
+    void push_front(int value){
+        root = merge(new node(value), root);
+    }
+    
+    void erase(int index){
+        auto [less, greater] = split(root, index);
+        auto [ll, rr] = split(greater, 1);
+        root = merge(less, rr);
+    }
+    
     void foreach(std::function<void (Value&)> f) {
         foreach(f, root);
     }
     
 };
+
+
+
+int main(){
+    //мой тест
+    ITreap <int> it;
+    it.push_front(19);
+    it.push_front(17);
+    it.push_front(11);
+    it.push_front(5);
+    it.push_front(7);
+    it.push_front(1);
+    it.push_front(9);
+    cout << it.size() << '\n';
+    for(int i = 0; i < it.size(); i++){
+        cout << it[i] << ' ';
+        it[i] = -it[i];
+    } cout << '\n';
+    it[3] = 228;
+    for(int i = 0; i < it.size(); i++){
+        cout << it[i] << ' ';
+    } cout << '\n' << "-----------\n";
+    
+    it.foreach([&](int& v){ cout << v << "\n";});
+    cout << "-----------";
+    
+    
+      /* //учебный тест  
+      ITreap<int> t;
+      t.insert(0,10); // {10}
+      t.insert(1,20); // {10,20}
+      t.insert(1,15); // {10,15,20}
+      t.foreach([&](int& v){ cout<<v<<"\n";});
+      t[2]=25; // {10,15,25}
+      t.erase(1); // {10,25}
+      cout<<t[0]<<"\n";
+      cout<<t[1]<<"\n";
+      */
+    return 0;
+}
