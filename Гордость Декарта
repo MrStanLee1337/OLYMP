@@ -11,8 +11,8 @@ class ITreap{
         int priority, size;
         Value value;
         bool reversed;
-        node(Value value): value(value), priority(rand()), size(1), reversed(false){}
-        node *left = nullptr, *right = nullptr;
+        node *left, *right;
+        node(Value value): value(value), priority(rand()), size(1), reversed(false), left(nullptr), right(nullptr){}
         void update () { size = 1 + (left ? left->size : 0) + (right ? right->size : 0); }
     } *root = nullptr;
     
