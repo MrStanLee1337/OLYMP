@@ -1,0 +1,184 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <random>
+using namespace std;
+
+template <typename Value>
+class ITreap{
+    
+    struct node {
+        int priority, size;
+        Value value;
+        bool reversed;
+        node(Value value): value(value), priority(rand()), size(1), reversed(false){}
+        node *left = nullptr, *right = nullptr;
+        void update () { size = 1 + (left ? left->size : 0) + (right ? right->size : 0); }
+    } *root = nullptr;
+    
+    int getSize(node *a){
+        return a ? a->size : 0;
+    }
+    
+    pair<node*, node*> split(node* p, int count){
+        if(!p) return {nullptr, nullptr};
+        
+        int ls = getSize(p->left);
+        if (ls >= count) {//включительно
+            auto [first, second] = split(p->left, count);
+            p->left = second;
+            p->update();
+            return {first, p};
+        } else {
+            auto [first, second] = split(p->right, count - ls - 1);
+            p->right = first;
+            p->update();
+            return {p, second};
+        }
+    }
+    
+    node *merge(node *a, node *b){
+        if(!a) return b;
+        if(!b) return a;
+        if(a->priority > b->priority){
+            a->right = merge(a->right, b);
+            a->update();
+            return a;
+        } else {
+            b->left = merge(a, b->left);
+            b->update();
+            return b;
+        }
+    }
+    
+    node* find(int index){
+        if (index < 0 || index >= getSize(root)) {
+            cout << "\nВыход за ограничения. Index is " << index << '\n';
+            return nullptr;
+        }
+        node* p = root;
+        while (true) {
+            int ls = getSize(p->left); 
+            if (index == ls) {
+                return p;
+            } else if (index < ls) {
+                p = p->left;
+            } else {
+                index -= (ls + 1); 
+                p = p->right;
+            }
+        }
+    }
+    
+    void foreach(std::function<void (Value&)> f, node *p) {
+        if (!p) return;
+        if(p->left) foreach(f, p->left);
+        f(p->value);
+        if(p->right) foreach(f, p->right);
+    }
+    
+    void free(node *t) {
+        if(!t) return;
+        free(t->left);
+        free(t->right);
+        delete t;
+    }
+    
+public:
+
+    ITreap(){}
+    
+    ~ITreap() { free(root); }
+    
+    int size(){ return root ? root->size : 0;}
+    
+    void insert(int index, int value){
+        auto [less, greater] = split(root, index);
+        root = merge(merge(less, new node(value)), greater);
+    }
+    
+    Value operator[](int index) const {
+        return find(index)->value;
+    }
+    
+    Value& operator[](int index) {
+        Value &result = find(index)->value;
+        return result;
+    }
+    
+    void push_back(int value){
+        root = merge(root, new node(value));
+    }
+    
+    void push_front(int value){
+        root = merge(new node(value), root);
+    }
+    
+    void erase(int index, int second = 0){//удаление по индексу либо по отрезку по индексам включительно
+        pair<node*, node*> p;
+        auto [less, greater] = split(root, index);
+        
+        if (second) p = split(greater, second - index + 1); 
+        else p = split(greater, 1);
+        root = merge(less, p.second);
+    }
+    
+    void foreach(std::function<void (Value&)> f) {
+        foreach(f, root);
+    }
+    
+    void toFront(int l, int r){//перемещает в начало
+        auto [less, greater] = split(root, l);
+        pair<node*, node*> p = split(greater, r - l + 1);
+        root = merge(merge(p.first, less), p.second);
+    }
+    
+};
+
+
+
+int main(){
+    int n,k;
+    cin >> n >> k;
+    ITreap<int> it;
+    for(int i = 1; i <= n; i++){
+        it.push_back(i);
+    }
+    for(int i = 0; i < k; i++){
+        int p1,p2;
+        cin >> p1 >> p2;
+        it.toFront(p1 - 1, p2 - 1);
+    }
+    it.foreach([&](int& v) {cout << v << ' '; });
+    //мой тест
+    /*ITreap <int> it;
+    it.push_front(4);
+    it.push_front(3);
+    it.push_front(0);
+    it.push_front(6);
+    it.push_front(2);
+    cout << "Size: " << it.size() << '\n';
+    for(int i = 0; i < it.size(); i++){
+        cout << it[i] << ' ';
+        
+    } cout << '\n';
+    
+    it.foreach([&](int& v){ cout << v << " ";});
+    cout << "\n-----------\n";
+    it.toFront(2,4);
+    it.foreach([&](int& v) { cout << v << ' ';});
+    */
+      /* //учебный тест  
+      ITreap<int> t;
+      t.insert(0,10); // {10}
+      t.insert(1,20); // {10,20}
+      t.insert(1,15); // {10,15,20}
+      t.foreach([&](int& v){ cout<<v<<"\n";});
+      t[2]=25; // {10,15,25}
+      t.erase(1); // {10,25}
+      cout<<t[0]<<"\n";
+      cout<<t[1]<<"\n";
+      */
+      
+    return 0;
+}
