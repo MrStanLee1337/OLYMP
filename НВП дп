@@ -1,0 +1,20 @@
+//https://www.youtube.com/watch?v=dBJxLOKqYqU&t=1854s
+//30:54 - 1-2minutes
+
+#include <iostream>
+#include <vector>
+using namespace std;
+//test
+int main(){
+    int n = 7;
+    int a[n] = {24,2,8,500,5,511,0};
+    int mad[n + 1] = {-1, 1000,1000,1000,1000,1000, 1000, 1000};
+    int dp[n] = {0,0,0,0,0,0,0};
+    dp[0] = 1;
+    for(int i = 1; i <= n; i++){
+        dp[i] = lower_bound(mad, mad + n + 1, a[i]) - mad;
+        mad[dp[i]] = a[i];
+    }
+    for(int i = 0; i < n; i++) cout << dp[i] << '\t';
+    return 0;
+}
