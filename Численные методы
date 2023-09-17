@@ -7,7 +7,16 @@ ll find_root(ll x){
 }
 
 const double eps = 1e-15;
-double newtonsqrt(double x, double a = 1){
+double newtonsqrt(double x, double a = 1){//метод ньютона для нахождения корня
     if(fabs(x - a*a) < eps) return a;
     return newtonsqrt(x, (a + x/a) / 2);
+}
+
+int powermod(int base, int e, int mod){//возвести в степень и взять модуль
+    if(!e) return 1;
+    if(e % 2 == 0){
+        return powermod(base, e/2, mod)*powermod(base, e/2, mod) % mod;
+    } else {
+        return base * powermod(base, e - 1, mod) % mod;
+    }
 }
