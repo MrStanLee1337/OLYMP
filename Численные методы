@@ -5,3 +5,9 @@ ll find_root(ll x){
   while(root*root > x) root--;
   return root;
 }
+
+const double eps = 1e-15;
+double newtonsqrt(double x, double a = 1){
+    if(fabs(x - a*a) < eps) return a;
+    return newtonsqrt(x, (a + x/a) / 2);
+}
