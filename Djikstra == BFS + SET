@@ -1,0 +1,57 @@
+#include <iostream>
+#include <set>
+#include <vector>
+using namespace std;
+
+using ll = long long;
+
+int main(){
+    int n, m;
+    cin >> n >> m;
+    vector<vector<pair<int,ll>>> gr(n);//граф: сосед и расстояние
+    
+    for (int i = 0; i < m; i++) {
+        int a,b,w;
+        cin >> a >> b >> w;
+        --a;--b;
+        gr[a].emplace_back(b,w);
+        gr[b].emplace_back(a,w);
+    }
+    ll inf = (ll)1e18;
+    vector<ll> dist(n, inf);//расстояние до места(минимальное на данный момент)
+    dist[0] = 0;
+    vector<int> from(n, -1);
+    set<pair<ll, int>> q;//дистанция и место где нахожусь
+    q.insert(make_pair(0ll,0));
+    
+    while(!q.empty()){
+        int now = q.begin()->second;//я сейчас здесь(место)
+        q.erase(q.begin());
+        for(const auto &x: gr[now]){
+            int pto = x.first;
+            if(x.second + dist[now] >= dist[pto]) { continue; }//расстояние(now) + расстояние между точками V расстояние(куда)
+            
+            auto it = q.find(make_pair(dist[pto], pto));//убираем дубликаты
+            if(it != q.end()) { q.erase(it); }
+            
+            dist[pto] = x.second + dist[now];//обновляем расстояние
+            from[pto] = now;//сохраняем оптимальный путь
+            q.insert(make_pair(dist[pto], pto));//закидываем в очередь найденную оптимальную вершину
+        }
+    }
+    if(dist[n-1] == inf) {//не дошли до последней вершины
+        cout << "-1\n";
+    } else {
+        vector<int> path;
+        int to = n - 1;
+        while(to > -1){
+            path.push_back(to);
+            to = from[to];
+        }
+        for(auto i = path.rbegin(); i != path.rend(); i++) cout << (*i) + 1 << ' ';//восстанавливаем путь с конца
+    }
+
+    return 0;
+
+}
+
