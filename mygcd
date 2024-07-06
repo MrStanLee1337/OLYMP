@@ -1,0 +1,22 @@
+using ll = long long;
+
+template<class Type>
+Type mygcd(Type a, Type b){
+    while(b) a %= b, swap(a,b);
+    return a;
+}
+
+template<class Type>
+Type mylcm(Type a, Type b){
+    return a / gcd(a,b) * b;
+}
+
+template<class Type>
+Type mygcd(Type a, Type b, Type& x, Type& y) {
+    if(!a) {x = 0; y = 1; return b;}
+    ll x1, y1;
+    ll d = mygcd(b%a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return d;
+}
