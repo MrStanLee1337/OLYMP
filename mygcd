@@ -1,9 +1,14 @@
-using ll = long long;
 
 template<class Type>
 Type mygcd(Type a, Type b){
     while(b) a %= b, swap(a,b);
     return a;
+}
+
+template<class Type>
+Type mygcd(Type a, Type b) {
+    while((a %= b) && (b %= a));
+    return a | b;
 }
 
 template<class Type>
