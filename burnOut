@@ -1,0 +1,38 @@
+double rnd() {
+    return (double)rand() / RAND_MAX;
+}
+//МЕТОД ОТЖИГА
+void solveBurnOut() { 
+    int n;
+    cin >> n;
+    vector<card> cards;
+    for (int i = 0; i < n; i++) {
+        char c; int r, b;
+        cin >> c >> r >> b;
+        cards.push_back({c,r,b});
+    }
+
+    int answer = INT_MAX; // необходимо найти минимальную стоимость
+    double t = 1;
+    while (clock() / (double)CLOCKS_PER_SEC <= 1.9) { // критерий выхода. либо время либо количество итераций
+        
+        int cur = findCost(cards);// функция высчета стоимости (по условию)
+        answer = min(answer, cur);
+        vector<card> to = cards;//создаём копию 
+
+        // случайно изменяем копию, но так чтобы с уменьшением t - изменения также были менее существеннее
+        for (int i = 0; i < n * t; i++) swap(to[rand()%n], to[rand()%n]); 
+        int now = findCost(to);// высчитываем значение копии
+        answer = min(answer, now);
+
+        //изменяем в 2 случаях
+        //1 - новое значение не хуже
+        //2 - случайно если random <= exp(dt/t) включительно!
+        //dt - разница значений. (dt < 0)
+        if (now <= cur || rnd() <= exp((cur - now) / t)) {
+            cards = to;
+        }
+        t *= 0.999;// коэффициент снижения температуры
+    }
+    cout << answer << '\n';
+}
