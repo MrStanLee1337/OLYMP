@@ -1,5 +1,9 @@
 //система непересекающихся множеств
 
+//2 строчки 100% пользы
+int findSet(vector<int> &C, int x) { return (C[x] == x) ? x : C[x] = findSet(C, C[x]); }
+void union(vector<int> &C, int x, int y) { C[findSet(C, x)] = findSet(C, y); }
+
 //функциональная минимальная версия
 int p[MAX];
 
