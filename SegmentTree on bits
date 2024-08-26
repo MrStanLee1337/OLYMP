@@ -1,37 +1,83 @@
+//дополнение 
+/*
+НОД на вершинах
+g[i] = gcd(g[left], g[right], any[left] - any[right]);
+где any[] любое число из листьев-потомков
+*/
 
-void init(vector<int>& t){
-  int n = size(t) >> 1;
-  for(int i = n - 1; i > 0; i--) t[i] = t[i << 1] + t[(i << 1) ^ 1];
+int max(int a, int b) {
+    return a > b ? a : b;
+}
+int min(int a, int b) {
+    return a < b ? a : b;
+}
+int sums(int a, int b) {
+    return a + b;
+}
+int gcd(int a, int b) {
+    return std::gcd(a, b);
+}
+int gcd(int a, int b, int c) {
+    return gcd(a, gcd(b, c));
 }
 
-int sum(vector<int>& t, int l, int r) { //excluded r
-  int n = size(t) >> 1;
-  int res = 0;
-  for(l += n, r += n; l < r; l >>= 1, r >>= 1){
-  if(l & 1) res += t[l++];
-  if(r & 1) res += t[--r];
-  }
-  return res;
+//вектор начальных значений, segment tree, функция
+void buildbeats(vector<int>& vec, vector<int>& t, int func(int, int)) {
+    int n = size(vec);
+    t.assign(2 * n, 0);
+    for (int i = 0; i < n; i++) t[i + n] = vec[i];
+    for (int i = n - 1; i > 0; i--) {
+        t[i] = func(t[i << 1], t[i << 1 | 1]);
+    }
 }
 
-void change(vector<int>& t, int v, int val){
-  int n = size(t) >> 1;
-  for(t[v += n] = Value; v > 0; v >>= 1) t[v >> 1] = t[v] + t[v^1];
+void setValue(vector<int>& t, int func(int,int), int v, int value) {
+    for (t[v += size(t) >> 1] = value; v > 0; v >>= 1) {
+        t[v >> 1] = func(t[v], t[v ^ 1]);
+    }
 }
 
-void add(vector<int>& t, int v, int delta){
-  int n = size(t) >> 1;
-  for(v += n; v > 0; v >>= 1) t[v] += delta; 
+//[l,r)
+void getValue(int& res, vector<int>& t, int func(int,int), int left, int right) {
+    int n = size(t) >> 1;
+    left += n;
+    right += n;
+    for (; left < right; left >>= 1, right >>= 1) {
+        if (left & 1) res = func(res, t[left++]);
+        if (right & 1) res = func(res, t[--right]);
+    }
+}
 
-}
-void solve(){
-  int n = 10;
-  vector<int> t(2 * n, 0);
-  for(int i = 0; i < n; i++) cin >> t[i + n]; 
-  init(t);
+void beats() {
+    int n = 6;
+    vector<int> vec(n); 
+    for (auto& x : vec) x = rnd() % n + 1;
+    vector<int> t,g,mx,mn;//сумма, gcd, max, min
+    print1vec(vec);
+
+    //вектор начальных значений, построение segment tree, функция
+    buildbeats(vec, t, sums);
+    buildbeats(vec, g, gcd);
+    buildbeats(vec, mx, max);
+    buildbeats(vec, mn, min);
+
+    //изменить значение
+    //setValue(g,gcd,n - 1, 10);
+    //setValue(mx, max, n - 1, 7);
+    
+    //переменная хранения ответа(инциализируется относительно функции)
+    //сумма = 0, минимум = inf, gcd = g[left] и т.д.
+    int res = g[2 + n];
+    getValue(res, g, gcd, 2, 4);
+    debug(res);
+
+    int ans = -1;
+    getValue(ans, mx, max, 0, n);
+    debug(ans)
+
+    print1vec(t);
+    print1vec(g);
+    print1vec(mx);
+    print1vec(mn);
 }
 
-int main(){
-  solve();
-  return 0;
-}
