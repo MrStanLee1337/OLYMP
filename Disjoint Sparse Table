@@ -1,0 +1,58 @@
+//Int это число по модулю
+namespace DST {
+    int n, maxn, logn;//размер массива, размер масиива по степени двойки(maxn >= n), высота дерева
+    int* bits;//макс степень двойки в числе 
+    vector<vector<Int>> dst;
+    Int times(Int a, Int b) {
+        return a * b;
+    }
+    #define func times
+    void build() { 
+        for (int h = 1; h < logn; h++) {
+            int len = (1 << h);
+            for (int center = len; center  < maxn; center += 2 * len) {
+                dst[h][center] = dst[0][center];
+                dst[h][center - 1] = dst[0][center - 1];
+                for (int r = center + 1; r < center + len; r++) {
+                    dst[h][r] = func(dst[h][r - 1], dst[0][r]);
+                }
+                for (int l = center - 2; l >= center - len; l--)
+                    dst[h][l] = func(dst[h][l + 1], dst[0][l]);
+            }
+        }
+    }
+
+    Int find(int l, int r) {//[l,r] l and r included
+        int row = bits[l ^ r];
+        return func(dst[row][l], dst[row][r]);
+    }
+
+    void solve() {
+        n;
+        cin >> n;
+        
+        logn = 20;
+        maxn = (1 << logn);
+        //while (maxn < n) maxn <<= 1, logn++;
+        bits = new int[maxn + 1];
+        //bits[0] = 0;
+        bits[1] = 0;
+        for (int i = 2; i <= maxn; i++) bits[i] = 1 + bits[i >> 1];
+        dst.resize(logn);
+        for (int i = 0; i < logn; i++) dst[i].resize(maxn, 0);
+        for (int i = 0; i < n; i++) {
+            int c; cin >> c;
+            dst[0][i] = (Int)c;
+        }
+        build();
+        int q; cin >> q;
+        for (int i = 0; i < q; i++) {
+            int l, r;
+            cin >> l >> r;
+            --l; --r;
+            if (l == r) cout << dst[0][l] << '\n';
+            else
+            cout << find(l, r) << '\n';
+        }
+    }
+}
