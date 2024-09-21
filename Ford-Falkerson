@@ -1,0 +1,59 @@
+namespace FORDFALKERSON {
+	int n;
+	vector < vector<int> > adj;
+	vector < vector<int> > capacity;
+
+	int bfs(int s, int t, vector<int>& p) {
+		p.assign(n, -1);
+		p[s] = -2;
+		queue<pair<int, int>> q;
+		q.push({s, inf});
+		while (!q.empty()) {
+			int cur = q.front().first;
+			int flow = q.front().second;
+			q.pop();
+			for (int next : adj[cur]) {
+				if (p[next] == -1 && capacity[cur][next]) {
+					p[next] = cur;
+					int new_flow = min(flow, capacity[cur][next]);
+					if (next == t) return new_flow;
+					q.push({next, new_flow});
+				}
+			}
+		}
+	}
+	int findMaxFlow(int s, int t) {
+		int flow = 0;
+		vector<int> p(n);
+		int new_flow;
+
+		while (new_flow = bfs(s,t,p)) {
+			flow += new_flow;
+			int cur = t;
+			while (cur != s) {
+				int prev = p[cur];
+				capacity[prev][cur] -= new_flow;
+				capacity[cur][prev] += new_flow;
+				cur = prev;
+			}
+		}
+
+		return flow;
+	}
+
+	void init(string s) {
+		fstream file(s);
+		int m;
+		file >> n >> m;
+		adj.resize(n);
+		capacity.resize(n, vector<int>(n, 0));
+		while (m--) {
+			int from, to, val;
+			file >> from >> to >> val;
+			--from, --to;
+			adj[from].push_back(to);
+			capacity[from][to] = val;
+		}
+		cout << "Max flow is: " << findMaxFlow(0, n - 1);
+	}
+}
