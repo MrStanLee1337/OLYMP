@@ -1,10 +1,19 @@
-namespace BURNOUT{
-
+mt19937 rnd(clock());
+namespace BURNOUT {
+    int n = 3000;
+    vector<int> pos(n);
+    int answer = 0;
+    vector<int> best;
+    int cost(vector<int>& x) {
+        int cnt = 0;
+        for (int i = 1; i < n; i++) if (x[i - 1] < x[i]) ++cnt;
+        return cnt;
+    }
     void burnOut(){
         double t = 1.;
         iota(begin(pos), end(pos), 1);
+        int val = cost(pos); // без пересчета того что уже посчитали работает для n < 3000 с 97%
         while (clock() / CLOCKS_PER_SEC <= 1.9) {
-            int val = cost(pos);
             vector<int> newpos = pos;
             for (int i = 0; i < t * n; i++) {
                 swap(newpos[rnd() % n], newpos[rnd() % n]);
@@ -16,7 +25,7 @@ namespace BURNOUT{
             }
             if (newval >= val || rnd() <= exp((newval - val) / t)) {
                 pos = newpos;
-                
+                val = newval;
             }
             t *= 0.999;
         }
@@ -25,7 +34,6 @@ namespace BURNOUT{
         cout << '\n' << answer;
         cout << '\n' << t;
     }
-
 }
 
 double rnd() {
