@@ -1,3 +1,33 @@
+namespace BURNOUT{
+
+    void burnOut(){
+        double t = 1.;
+        iota(begin(pos), end(pos), 1);
+        while (clock() / CLOCKS_PER_SEC <= 1.9) {
+            int val = cost(pos);
+            vector<int> newpos = pos;
+            for (int i = 0; i < t * n; i++) {
+                swap(newpos[rnd() % n], newpos[rnd() % n]);
+            }
+            int newval = cost(newpos);
+            if (answer < newval) {
+                answer = newval;
+                best = newpos;
+            }
+            if (newval >= val || rnd() <= exp((newval - val) / t)) {
+                pos = newpos;
+                
+            }
+            t *= 0.999;
+        }
+        print1vec(best);
+        cout << '\n' << cost(best);
+        cout << '\n' << answer;
+        cout << '\n' << t;
+    }
+
+}
+
 double rnd() {
     return (double)rand() / RAND_MAX;
 }
@@ -16,8 +46,8 @@ void solveBurnOut() {
     double t = 1;
     while (clock() / (double)CLOCKS_PER_SEC <= 1.9) { // критерий выхода. либо время либо количество итераций
         
-        int cur = findCost(cards);// функция высчета стоимости (по условию)
-        answer = min(answer, cur);
+        int val = findCost(cards);// функция высчета стоимости (по условию)
+        answer = min(answer, val);
         vector<card> to = cards;//создаём копию 
 
         // случайно изменяем копию, но так чтобы с уменьшением t - изменения также были менее существеннее
@@ -29,7 +59,7 @@ void solveBurnOut() {
         //1 - новое значение не хуже
         //2 - случайно если random <= exp(dt/t) включительно!
         //dt - разница значений. (dt < 0)
-        if (now <= cur || rnd() <= exp((cur - now) / t)) {
+        if (now >= cur || rnd() <= exp((cur - now) / t)) {
             cards = to;
         }
         t *= 0.999;// коэффициент снижения температуры
