@@ -21,6 +21,7 @@ namespace FORDFALKERSON {
 				}
 			}
 		}
+		return 0;
 	}
 	int findMaxFlow(int s, int t) {
 		int flow = 0;
