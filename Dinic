@@ -1,0 +1,62 @@
+namespace DINIC {
+	int n;
+	vector<vector<int>> adj;
+	vector<vector<int>> cap;
+	vector<int> layer;
+	vector<int> ptr;//с помощью него пропускаем использованные ребра
+	
+	bool bfs() {
+		layer.assign(n, -1);
+		layer[0] = 0;
+		queue<int> q; q.push(0);
+		while (!q.empty()) {
+			int cur = q.front();
+			q.pop();
+			for (int next : adj[cur]) {
+				if (cap[cur][next] and layer[next] == -1) {
+					q.push(next);
+					layer[next] = layer[cur] + 1;
+				}
+			}
+		}
+		return layer[n - 1] != -1;
+	}
+
+	double dfs(int from, double flow) {
+		if (from == n - 1 || flow == 0) return flow;
+		for (int& p = ptr[from]; p < adj[from].size(); p++) {
+			int to = adj[from][p];
+			if (layer[to] == layer[from] + 1) {
+				double delta = dfs(to, min(flow, (double)cap[from][to]));
+				if (delta) {
+					cap[from][to] -= delta;
+					cap[to][from] += delta;
+					return delta;
+				}
+			}
+		}
+		return 0;
+	}
+	void init() {
+		int m; cin >> n >> m;
+		adj.resize(n);
+		cap.assign(n, vector<int>(n, 0));
+		for (int i = 0; i < m; i++) {
+			int l, r, c;
+			cin >> l >> r >> c;
+			--l, --r;
+			adj[l].emplace_back(r);
+			adj[r].emplace_back(l);
+			cap[l][r] = c;
+		}
+		
+		double maxFlow = 0;
+		while (bfs()) {
+			ptr.assign(n, 0);
+			while(double flow = dfs(0, inf)) {
+				maxFlow += flow;
+			}
+		}
+		cout << maxFlow;
+	}
+}
